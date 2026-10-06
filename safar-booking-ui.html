@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safar — Bus Ticket Booking (UX Concept)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+  body { background:#eef2f0; display:flex; justify-content:center; min-height:100vh; }
+  .phone { width:400px; max-width:100vw; min-height:100vh; background:#f7f9f8; position:relative; padding-bottom:110px; }
+  .screen { display:none; padding:20px; animation:fade .3s; }
+  .screen.active { display:block; }
+  @keyframes fade { from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+  .brand { color:#0b6b4f; font-weight:800; font-size:22px; padding:14px 20px 0; }
+  h1 { font-size:26px; margin:10px 0 16px; color:#14231d; }
+  .card { background:#fff; border-radius:18px; padding:18px; box-shadow:0 4px 18px rgba(0,0,0,.06); margin-bottom:14px; }
+  label { font-size:12px; color:#7a8a83; text-transform:uppercase; letter-spacing:.5px; }
+  select, input { width:100%; padding:12px; margin-top:6px; border:1.5px solid #dfe7e2; border-radius:12px; font-size:16px; background:#fff; }
+  .row { display:flex; gap:10px; }
+  .row > div { flex:1; }
+  .btn { width:100%; background:#0b6b4f; color:#fff; border:none; padding:16px; border-radius:16px; font-size:17px; font-weight:700; cursor:pointer; margin-top:8px; }
+  .btn:hover { background:#095c43; }
+  .btn.ghost { background:#fff; color:#0b6b4f; border:1.5px solid #0b6b4f; }
+  .bus { display:flex; flex-direction:column; gap:6px; }
+  .bus-top { display:flex; justify-content:space-between; align-items:center; }
+  .bus-name { font-weight:700; font-size:17px; }
+  .rating { color:#b7791f; font-weight:700; font-size:14px; }
+  .times { display:flex; justify-content:space-between; align-items:center; margin:6px 0; }
+  .time { font-size:20px; font-weight:800; }
+  .dur { font-size:13px; color:#7a8a83; text-align:center; }
+  .meta { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .tag { font-size:12px; padding:5px 10px; border-radius:20px; background:#e6f4ec; color:#0b6b4f; font-weight:600; }
+  .tag.warn { background:#fdf0dc; color:#b7791f; }
+  .price { font-size:20px; font-weight:800; color:#0b6b4f; }
+  .seatmap { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:14px 0; }
+  .seat { aspect-ratio:1; border:2px solid #cfdad4; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:700; color:#5c6f65; cursor:pointer; background:#fff; font-size:14px; }
+  .seat.sold { background:#d8deda; border-color:#d8deda; color:#9aa5a0; cursor:not-allowed; }
+  .seat.sel { background:#0b6b4f; border-color:#0b6b4f; color:#fff; }
+  .legend { display:flex; gap:16px; font-size:13px; color:#5c6f65; margin-bottom:6px; }
+  .dot { width:14px; height:14px; border-radius:5px; display:inline-block; vertical-align:-2px; margin-right:5px; }
+  .fare { font-size:18px; font-weight:800; color:#0b6b4f; }
+  .fare small { display:block; font-size:12px; color:#7a8a83; font-weight:400; margin-top:4px; }
+  .ticket { text-align:center; }
+  .ticket .big { font-size:52px; margin:18px 0 6px; }
+  .ref { background:#eef2f0; border:2px dashed #0b6b4f; border-radius:14px; padding:14px; font-size:20px; font-weight:800; letter-spacing:3px; margin:14px 0; color:#0b6b4f; }
+  .nav { position:fixed; bottom:0; width:400px; max-width:100vw; background:#fff; display:flex; justify-content:space-around; padding:12px 0 18px; box-shadow:0 -4px 18px rgba(0,0,0,.06); }
+  .nav button { background:none; border:none; font-size:13px; color:#7a8a83; cursor:pointer; }
+  .nav button.on { color:#0b6b4f; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="brand">🚌 Safar</div>
+
+  <!-- SCREEN 1: SEARCH -->
+  <div class="screen active" id="s1">
+    <h1>Where to, traveller?</h1>
+    <div class="card">
+      <div class="row">
+        <div><label>From</label><select id="from"><option>Lahore</option><option>Karachi</option><option>Peshawar</option><option>Multan</option></select></div>
+        <div><label>To</label><select id="to"><option>Islamabad</option><option>Lahore</option><option>Karachi</option><option>Quetta</option></select></div>
+      </div>
+      <div style="margin-top:12px"><label>Date</label><input type="date" id="date" value="2026-10-07"></div>
+      <div style="margin-top:12px"><label>Passengers</label><select id="pax"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+    </div>
+    <button class="btn" onclick="go(2)">Search Buses →</button>
+  </div>
+
+  <!-- SCREEN 2: RESULTS -->
+  <div class="screen" id="s2">
+    <h1 id="routeTitle">Lahore → Islamabad</h1>
+    <div class="card bus">
+      <div class="bus-top"><span class="bus-name">Faisal Movers</span><span class="rating">★ 4.6</span></div>
+      <div class="times"><span class="time">09:30 AM</span><span class="dur">5h 15m<br>Executive</span><span class="time">02:45 PM</span></div>
+      <div class="meta"><span class="tag warn">Only 6 seats left</span><span class="price">PKR 1,850</span></div>
+      <button class="btn" onclick="pickBus('Faisal Movers','09:30 AM',1850)">Select Seats</button>
+    </div>
+    <div class="card bus">
+      <div class="bus-top"><span class="bus-name">Daewoo Express</span><span class="rating">★ 4.6</span></div>
+      <div class="times"><span class="time">10:15 AM</span><span class="dur">5h 15m<br>Executive</span><span class="time">03:30 PM</span></div>
+      <div class="meta"><span class="tag warn">Only 4 seats left</span><span class="price">PKR 1,850</span></div>
+      <button class="btn" onclick="pickBus('Daewoo Express','10:15 AM',1850)">Select Seats</button>
+    </div>
+    <div class="card bus">
+      <div class="bus-top"><span class="bus-name">Niazi Coach</span><span class="rating">★ 4.3</span></div>
+      <div class="times"><span class="time">11:00 AM</span><span class="dur">5h 15m<br>Business</span><span class="time">04:15 PM</span></div>
+      <div class="meta"><span class="tag">14 seats left</span><span class="price">PKR 1,600</span></div>
+      <button class="btn" onclick="pickBus('Niazi Coach','11:00 AM',1600)">Select Seats</button>
+    </div>
+    <button class="btn ghost" onclick="go(1)">← Back</button>
+  </div>
+
+  <!-- SCREEN 3: SEATS -->
+  <div class="screen" id="s3">
+    <h1>Select your seats</h1>
+    <p style="color:#7a8a83;margin-bottom:10px" id="busInfo"></p>
+    <div class="legend"><span><span class="dot" style="background:#fff;border:2px solid #cfdad4"></span>Available</span><span><span class="dot" style="background:#0b6b4f"></span>Selected</span><span><span class="dot" style="background:#d8deda"></span>Sold</span></div>
+    <div class="card"><div class="seatmap" id="seats"></div></div>
+    <div class="card"><div class="fare" id="fare">0 seats selected</div></div>
+    <button class="btn" id="payBtn" onclick="go(4)" disabled style="opacity:.4">Continue to Payment →</button>
+    <button class="btn ghost" onclick="go(2)">← Back</button>
+  </div>
+
+  <!-- SCREEN 4: TICKET -->
+  <div class="screen" id="s4">
+    <div class="ticket">
+      <div class="big">🎫</div>
+      <h1>You're booked!</h1>
+      <p style="color:#7a8a83" id="ticketInfo"></p>
+      <div class="ref" id="ticketRef">SFR-000000</div>
+      <p style="color:#7a8a83;font-size:14px">Show this code at the terminal.<br>No paper slip needed.</p>
+      <button class="btn" onclick="go(1)" style="margin-top:16px">Book Another Trip</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="on" onclick="go(1)">🏠<br>Home</button>
+    <button onclick="go(2)">🎟️<br>Search</button>
+    <button onclick="alert('Wallet coming soon in this concept demo')">👛<br>Wallet</button>
+  </div>
+</div>
+
+<script>
+let bus = {name:'', time:'', fare:0};
+let selected = new Set();
+const sold = new Set(['B3','C1','E2']);
+
+function go(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s'+n).classList.add('active');
+  window.scrollTo(0,0);
+  if(n===2){
+    document.getElementById('routeTitle').textContent =
+      document.getElementById('from').value + ' → ' + document.getElementById('to').value;
+  }
+  if(n===4){
+    document.getElementById('ticketInfo').textContent =
+      bus.name + ' • ' + bus.time + ' • Seats ' + [...selected].sort().join(', ');
+    document.getElementById('ticketRef').textContent =
+      'SFR-' + Math.floor(100000 + Math.random()*900000);
+  }
+}
+function pickBus(name,time,fare){
+  bus = {name,time,fare}; selected = new Set(); drawSeats(); updateFare();
+  document.getElementById('busInfo').textContent = name + ' • ' + time;
+  go(3);
+}
+function drawSeats(){
+  const box = document.getElementById('seats'); box.innerHTML='';
+  for(const r of ['A','B','C','D','E']) for(let i=1;i<=4;i++){
+    const id = r+i, d = document.createElement('div');
+    d.className='seat'; d.textContent=id;
+    if(sold.has(id)) d.classList.add('sold');
+    else d.onclick=()=>{ selected.has(id)?selected.delete(id):(selected.size<4&&selected.add(id)); drawSeats(); updateFare(); };
+    if(selected.has(id)) d.classList.add('sel');
+    box.appendChild(d);
+  }
+}
+function updateFare(){
+  const n = selected.size, btn = document.getElementById('payBtn');
+  document.getElementById('fare').innerHTML = n
+    ? `${n} Seat${n>1?'s':''} × PKR ${bus.fare.toLocaleString()} = PKR ${(n*bus.fare).toLocaleString()}<small>Includes taxes & service fee • No convenience fee</small>`
+    : '0 seats selected';
+  btn.disabled = !n; btn.style.opacity = n?1:.4;
+}
+drawSeats();
+</script>
+</body>
+</html>
